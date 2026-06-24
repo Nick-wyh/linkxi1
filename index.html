@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>灵犀塔罗 | AI 塔罗占卜</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: #0a0012;
+      color: #e8d5f5;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    /* 星空背景 */
+    .stars {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+    }
+    .star {
+      position: absolute; background: white; border-radius: 50%;
+      animation: twinkle var(--dur) ease-in-out infinite;
+      animation-delay: var(--delay);
+      opacity: 0;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: var(--peak); }
+    }
+    /* 主容器 */
+    .app {
+      position: relative; z-index: 1;
+      max-width: 440px; margin: 0 auto;
+      min-height: 100vh; padding: 20px 24px;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center;
+    }
+    /* 步骤容器 */
+    .step {
+      display: none; width: 100%; text-align: center;
+      flex-direction: column; align-items: center;
+      animation: fadeIn 0.5s ease;
+    }
+    .step.active { display: flex; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* 标题 */
+    .main-title {
+      font-size: 36px; font-weight: 700;
+      background: linear-gradient(135deg, #c9a0dc, #f0d080);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    .sub-title { font-size: 14px; color: #9a8aaa; margin-bottom: 32px; letter-spacing: 2px; }
+    .step-title { font-size: 22px; color: #d4b8e8; margin-bottom: 8px; font-weight: 600; }
+    .step-sub { font-size: 13px; color: #8a7a9a; margin-bottom: 28px; }
+    /* 输入框 */
+    input, textarea {
+      width: 100%; padding: 14px 18px;
+      border: 1px solid #3a2a50; border-radius: 14px;
+      background: rgba(20, 8, 40, 0.8);
+      color: #e8d5f5; font-size: 16px;
+      outline: none; transition: border 0.3s;
+      font-family: inherit;
+    }
+    input:focus, textarea:focus { border-color: #9a6ac0; box-shadow: 0 0 20px rgba(154,106,192,0.2); }
+    textarea { resize: none; height: 100px; }
+    /* 按钮 */
+    .btn {
+      display: inline-block; padding: 14px 40px;
+      border: none; border-radius: 30px;
+      font-size: 16px; font-weight: 600; cursor: pointer;
+      transition: all 0.3s; letter-spacing: 1px;
+      font-family: inherit;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #6a3a9a, #8a5ac0);
+      color: #fff; font-size: 18px; padding: 15px 50px;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(138,90,192,0.4); }
+    .btn-small { padding: 10px 24px; font-size: 14px; }
+    .btn-outline {
+      background: transparent; border: 1px solid #6a3a9a;
+      color: #c9a0dc;
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, #b8860b, #daa520);
+      color: #1a0010; font-weight: 700;
+    }
+    .btn-gold:hover { box-shadow: 0 8px 30px rgba(218,165,32,0.5); }
+    /* 选择卡片 */
+    .card-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px; width: 100%; margin-bottom: 28px;
+    }
+    .choice-card {
+      background: rgba(20, 8, 40, 0.8); border: 1px solid #3a2a50;
+      border-radius: 16px; padding: 20px 10px; cursor: pointer;
+      transition: all 0.3s; text-align: center;
+    }
+    .choice-card .icon { font-size: 32px; display: block; margin-bottom: 8px; }
+    .choice-card .label { font-size: 14px; color: #b8a0c8; }
+    .choice-card.selected {
+      border-color: #9a6ac0; background: rgba(106,58,154,0.2);
+      box-shadow: 0 0 20px rgba(154,106,192,0.3);
+    }
+    /* 心情标签 */
+    .mood-tags { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 28px; }
+    .mood-tag {
+      padding: 10px 20px; border-radius: 25px; cursor: pointer;
+      background: rgba(20, 8, 40, 0.8); border: 1px solid #3a2a50;
+      font-size: 14px; transition: all 0.3s;
+    }
+    .mood-tag.selected {
+      border-color: #9a6ac0; background: rgba(106,58,154,0.3);
+    }
+    /* 塔罗牌 */
+    .tarot-cards { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+    .tarot-card {
+      width: 100px; height: 150px; perspective: 800px; cursor: pointer;
+    }
+    .tarot-card-inner {
+      width: 100%; height: 100%; position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .tarot-card.flipped .tarot-card-inner { transform: rotateY(180deg); }
+    .tarot-card-face {
+      position: absolute; width: 100%; height: 100%;
+      backface-visibility: hidden; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; font-size: 12px; padding: 8px;
+    }
+    .card-back {
+      background: linear-gradient(135deg, #2a1050, #4a2080);
+      border: 2px solid #8a5ac0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .card-back .star-icon { font-size: 36px; }
+    .card-back .moon-icon { font-size: 20px; margin-top: 4px; }
+    .card-front {
+      background: linear-gradient(135deg, #1a0030, #2a1050);
+      border: 2px solid #daa520; transform: rotateY(180deg);
+      flex-direction: column; gap: 4px;
+    }
+    .card-front .card-name { font-size: 14px; font-weight: 700; color: #daa520; }
+    .card-front .card-desc { font-size: 10px; color: #b8a0c8; line-height: 1.3; }
+    /* 能量仪式 */
+    .energy-orb {
+      width: 120px; height: 120px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(138,90,192,0.6), rgba(106,58,154,0.2), transparent);
+      animation: pulse 2s ease-in-out infinite;
+      margin: 20px auto; display: flex; align-items: center; justify-content: center;
+    }
+    .energy-orb-inner {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(218,165,32,0.8), rgba(138,90,192,0.4));
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 1; }
+    }
+    /* 遮罩 */
+    .blur-overlay {
+      position: relative;
+    }
+    .blur-content {
+      filter: blur(8px); user-select: none; pointer-events: none;
+    }
+    .blur-cover {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; z-index: 10;
+      background: rgba(10, 0, 18, 0.5);
+    }
+    /* 弹窗 */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8); z-index: 100;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: #180828; border: 1px solid #3a2a50; border-radius: 20px;
+      padding: 28px 20px; max-width: 380px; width: 90%;
+      text-align: center; max-height: 90vh; overflow-y: auto;
+    }
+    .modal h3 { font-size: 20px; margin-bottom: 16px; color: #daa520; }
+    /* 价格卡片 */
+    .price-cards { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+    .price-card {
+      background: rgba(20, 8, 40, 0.8); border: 2px solid #3a2a50;
+      border-radius: 14px; padding: 16px; cursor: pointer; text-align: left;
+      transition: all 0.3s; display: flex; align-items: center; gap: 12px;
+    }
+    .price-card.selected { border-color: #daa520; background: rgba(218,165,32,0.08); }
+    .price-card .radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #6a3a9a; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .price-card.selected .radio { border-color: #daa520; }
+    .price-card.selected .radio::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: #daa520; }
+    .price-card .price-info { flex: 1; }
+    .price-card .price-amount { font-size: 20px; font-weight: 700; color: #daa520; }
+    .price-card .price-desc { font-size: 12px; color: #9a8aaa; margin-top: 2px; }
+    .price-card .badge {
+      background: #daa520; color: #1a0010; font-size: 11px;
+      padding: 3px 8px; border-radius: 10px; font-weight: 600;
+    }
+    /* 二维码 */
+    .qr-placeholder {
+      width: 160px; height: 160px; margin: 12px auto;
+      border: 1px dashed #6a3a9a; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: #8a7a9a; font-size: 13px;
+    }
+    .qr-placeholder img { width: 100%; height: 100%; border-radius: 12px; object-fit: contain; }
+    /* 解锁码输入 */
+    .unlock-input-area { margin-top: 16px; }
+    .unlock-input-area input {
+      text-align: center; font-size: 18px; letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+    .unlock-input-area .hint { font-size: 11px; color: #6a5a7a; margin-top: 6px; }
+    /* 分享按钮 */
+    .share-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid #2a1a40; }
+    .share-btn { width: 100%; margin-bottom: 8px; }
+    /* 底部 */
+    .footer-text { font-size: 11px; color: #4a3a5a; margin-top: 32px; text-align: center; }
+    /* 隐藏入口 */
+    .secret-entry {
+      position: fixed; bottom: 10px; right: 10px;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: transparent; z-index: 200; cursor: default;
+    }
+    /* 响应式 */
+    @media (max-width: 380px) {
+      .tarot-card { width: 80px; height: 120px; }
+      .card-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 星空背景 -->
+<div class="stars" id="stars"></div>
+
+<!-- 主应用 -->
+<div class="app" id="app">
+
+  <!-- 首页 -->
+  <div class="step active" id="step-home">
+    <div class="main-title">灵犀塔罗</div>
+    <div class="sub-title">✨ 默念你的问题，让宇宙给你答案 ✨</div>
+    <button class="btn btn-primary" onclick="goTo('step-name')">开始占卜 🔮</button>
+    <div style="margin-top:16px;font-size:12px;color:#5a4a6a;">已有解锁码？<a href="javascript:void(0)" onclick="goTo('step-unlock-only')" style="color:#8a6ab0;">点此直接解锁 →</a></div>
+  </div>
+
+  <!-- 步骤1：名字 -->
+  <div class="step" id="step-name">
+    <div class="step-title">我是灵犀，你叫什么？</div>
+    <div class="step-sub">名字让你的能量与牌面共振</div>
+    <input type="text" id="userName" placeholder="输入你的名字或昵称" maxlength="20">
+    <div style="margin-top:24px;">
+      <button class="btn btn-primary" onclick="nextStep('step-name', 'step-type')">继续 →</button>
+    </div>
+  </div>
+
+  <!-- 步骤2：领域 -->
+  <div class="step" id="step-type">
+    <div class="step-title">你想问什么？</div>
+    <div class="step-sub">选择你最关心的领域</div>
+    <div class="card-grid" id="typeGrid"></div>
+    <button class="btn btn-primary" id="btnTypeNext" onclick="nextStep('step-type', 'step-question')" disabled style="opacity:0.5;">继续 →</button>
+  </div>
+
+  <!-- 步骤3：详细问题 -->
+  <div class="step" id="step-question">
+    <div class="step-title">告诉我更多</div>
+    <div class="step-sub">写得越具体，解读越准</div>
+    <textarea id="userQuestion" placeholder="比如：我该不该接受这份新工作？我和他接下来三个月会怎样？"></textarea>
+    <div style="margin-top:24px;">
+      <button class="btn btn-primary" onclick="nextStep('step-question', 'step-mood')">继续 →</button>
+    </div>
+  </div>
+
+  <!-- 步骤4：心情 -->
+  <div class="step" id="step-mood">
+    <div class="step-title">此刻你感觉如何？</div>
+    <div class="step-sub">了解你的情绪，解读才能更精准</div>
+    <div class="mood-tags" id="moodTags"></div>
+    <button class="btn btn-primary" id="btnMoodNext" onclick="nextStep('step-mood', 'step-ritual')" disabled style="opacity:0.5;">开始占卜 🔮</button>
+  </div>
+
+  <!-- 步骤5：能量连接仪式 -->
+  <div class="step" id="step-ritual">
+    <div class="step-title">连接宇宙能量</div>
+    <div class="step-sub">闭上眼睛，深呼吸三次…</div>
+    <div class="energy-orb">
+      <div class="energy-orb-inner"></div>
+    </div>
+    <div id="ritualText" style="font-size:14px;color:#b8a0c8;min-height:40px;margin:12px 0;"></div>
+    <button class="btn btn-gold" id="btnRitual" onclick="finishRitual()" style="display:none; animation: fadeIn 0.8s ease;">
+      ✨ 感应到了，开始抽牌
+    </button>
+  </div>
+
+  <!-- 步骤6：凭直觉选牌 -->
+  <div class="step" id="step-pick">
+    <div class="step-title">用你的直觉，选出 3 张牌</div>
+    <div class="step-sub">不要想太多，第一感觉最准</div>
+    <div class="card-grid" id="pickGrid" style="grid-template-columns: repeat(3, 1fr);"></div>
+    <button class="btn btn-gold" id="btnPick" onclick="revealCards()" disabled style="opacity:0.5;">
+      🔮 翻开命运之牌
+    </button>
+  </div>
+
+  <!-- 步骤7：翻牌 & 结果 -->
+  <div class="step" id="step-reveal">
+    <div class="step-title" id="revealTitle">✨ 你的命运之牌</div>
+    <div class="tarot-cards" id="revealCards"></div>
+    <div id="revealWhisper" style="font-size:13px;color:#b8a0c8;min-height:20px;margin:8px 0;"></div>
+    <button class="btn btn-gold" id="btnRevealNext" onclick="startReading()" style="display:none;">
+      ✨ 查看完整解读
+    </button>
+  </div>
+
+  <!-- 步骤8：加载解读 -->
+  <div class="step" id="step-loading">
+    <div class="energy-orb"><div class="energy-orb-inner"></div></div>
+    <div style="font-size:14px;color:#b8a0c8;margin-top:16px;">
+      灵犀正在为你解读这张牌与你的命运共振…
+    </div>
+  </div>
+
+  <!-- 步骤9：结果页 -->
+  <div class="step" id="step-result">
+    <div class="step-title">🔮 你的专属解读</div>
+    <!-- 免费摘要 -->
+    <div id="resultSummary" style="text-align:left;font-size:14px;line-height:1.8;color:#c8b8d8;width:100%;margin:16px 0;"></div>
+    <!-- 模糊遮罩 -->
+    <div class="blur-overlay" id="blurSection" style="width:100%;">
+      <div class="blur-content" id="resultFull" style="text-align:left;font-size:14px;line-height:1.8;color:#c8b8d8;margin-top:8px;"></div>
+      <div class="blur-cover">
+        <div style="font-size:15px;color:#daa520;margin-bottom:12px;">🔒 完整解读已加密</div>
+        <button class="btn btn-gold" onclick="showPayModal()">✨ 解锁完整解读报告</button>
+        <div style="margin-top:12px;font-size:12px;color:#8a7a9a;">已有解锁码？<a href="javascript:void(0)" onclick="scrollToUnlock()" style="color:#9a6ac0;">点此输入</a></div>
+      </div>
+    </div>
+    <!-- 解锁码输入 -->
+    <div style="margin-top:16px;width:100%;" id="unlockInputArea">
+      <input type="text" id="unlockCode" placeholder="输入解锁码" style="text-align:center;letter-spacing:4px;" maxlength="20">
+      <button class="btn btn-outline btn-small" onclick="verifyUnlockCode()" style="margin-top:8px;width:100%;">验证解锁码</button>
+      <div class="hint" style="font-size:11px;color:#6a5a7a;margin-top:6px;">付款后添加微信获取解锁码</div>
+    </div>
+    <!-- 分享 -->
+    <div class="share-section" id="shareSection" style="display:none;width:100%;">
+      <button class="btn btn-outline share-btn" onclick="shareResult()">📤 分享给朋友一起测</button>
+      <div style="font-size:12px;color:#8a7a9a;">📸 长按截图保存你的专属解读</div>
+      <div style="font-size:12px;color:#6a5a7a;margin-top:8px;">💫 7天后回来再测，运势会有变化</div>
+    </div>
+    <!-- 重新测试 -->
+    <button class="btn btn-outline btn-small" onclick="resetAll()" style="margin-top:24px;">🔄 重新占卜</button>
+  </div>
+
+  <!-- 纯解锁码入口 -->
+  <div class="step" id="step-unlock-only">
+    <div class="step-title">输入解锁码</div>
+    <div class="step-sub">付款后微信获取的解锁码在此输入</div>
+    <input type="text" id="unlockCodeOnly" placeholder="输入解锁码" style="text-align:center;letter-spacing:4px;margin-bottom:12px;" maxlength="20">
+    <button class="btn btn-gold" onclick="verifyUnlockCodeOnly()">✨ 解锁我的解读</button>
+    <button class="btn btn-outline btn-small" onclick="goTo('step-home')" style="margin-top:12px;">← 返回首页</button>
+  </div>
+
+</div>
+
+<!-- 付费弹窗 -->
+<div class="modal-overlay" id="payModal">
+  <div class="modal">
+    <h3>🔮 获取完整解读报告</h3>
+    <div class="price-cards" id="priceCards"></div>
+    <div style="margin-top:12px;font-size:13px;color:#daa520;">📱 扫码加微信，付款后立刻发送解锁码</div>
+    <div class="qr-placeholder" id="qrArea">
+      <span>此处放微信二维码<br>上传你的二维码图片替换</span>
+    </div>
+    <input type="text" id="unlockCodePay" placeholder="已有解锁码？在此输入" style="text-align:center;letter-spacing:4px;margin-top:8px;" maxlength="20">
+    <button class="btn btn-gold btn-small" onclick="verifyUnlockCodePay()" style="margin-top:8px;width:100%;">验证解锁码</button>
+    <div style="font-size:11px;color:#6a5a7a;margin-top:10px;">付款截图发微信，5分钟内收到解锁码</div>
+    <button class="btn btn-outline btn-small" onclick="closePayModal()" style="margin-top:12px;">关闭</button>
+  </div>
+</div>
+
+<div class="footer-text" id="footerText">灵犀塔罗 · AI 占卜仅供娱乐参考 · 请理性看待</div>
+
+<!-- 隐藏管理入口 -->
+<div class="secret-entry" id="secretEntry" title="."></div>
+<div class="modal-overlay" id="adminModal">
+  <div class="modal" style="max-height:80vh;">
+    <h3>🔑 解锁码管理</h3>
+    <div id="adminContent" style="text-align:left;font-size:12px;max-height:50vh;overflow-y:auto;"></div>
+    <button class="btn btn-outline btn-small" onclick="document.getElementById('adminModal').classList.remove('show')" style="margin-top:12px;">关闭</button>
+  </div>
+</div>
+
+<script>
+// ============ 塔罗牌数据（22张大阿尔卡纳）============
+const MAJOR_ARCANA = [
+  { id:0, name:'愚者', nameCN:'愚者', keywords:['开始','冒险','天真'], meaning:'新的旅程即将开始，保持开放的心态，相信宇宙的安排。', reversed:'犹豫不决，不敢迈出第一步，或者过于鲁莽。' },
+  { id:1, name:'魔术师', nameCN:'魔术师', keywords:['创造','能力','专注'], meaning:'你拥有实现愿望的全部能力，现在就是行动的时刻。', reversed:'能力被浪费，或者有人在欺骗你。' },
+  { id:2, name:'女祭司', nameCN:'女祭司', keywords:['直觉','神秘','智慧'], meaning:'相信你的直觉，答案在你的内心深处，静下来倾听。', reversed:'忽视内心声音，秘密被隐藏。' },
+  { id:3, name:'女皇', nameCN:'女皇', keywords:['丰盛','滋养','创造'], meaning:'丰盛的时期，你的努力即将开花结果，享受生活的美好。', reversed:'过度依赖，创造力枯竭。' },
+  { id:4, name:'皇帝', nameCN:'皇帝', keywords:['权威','稳定','结构'], meaning:'建立秩序和规则，用理性掌控局面，你是自己的主宰。', reversed:'滥用权力，缺乏自律。' },
+  { id:5, name:'教皇', nameCN:'教皇', keywords:['信仰','传统','指引'], meaning:'寻求智慧的指引，遵循内心的信仰，有人在默默帮助。', reversed:'盲目跟从，突破传统的时候到了。' },
+  { id:6, name:'恋人', nameCN:'恋人', keywords:['爱情','选择','和谐'], meaning:'重要的关系选择摆在面前，听从内心，爱会指引你。', reversed:'关系不和谐，做出违背内心的选择。' },
+  { id:7, name:'战车', nameCN:'战车', keywords:['胜利','意志','前行'], meaning:'坚定意志，勇往直前，胜利属于不放弃的人。', reversed:'失控，方向迷失，需要停下来重新审视。' },
+  { id:8, name:'力量', nameCN:'力量', keywords:['勇气','耐心','内在'], meaning:'真正的力量来自内心的平静，温柔比强硬更能征服一切。', reversed:'自我怀疑，内在力量流失。' },
+  { id:9, name:'隐者', nameCN:'隐者', keywords:['内省','孤独','智慧'], meaning:'暂时退隐，向内探索，独处带来最深的领悟。', reversed:'过于孤立，拒绝他人的帮助。' },
+  { id:10, name:'命运之轮', nameCN:'命运之轮', keywords:['转变','机遇','轮回'], meaning:'命运之轮正在转动，好运即将到来，把握转折点。', reversed:'厄运循环，抗拒改变只会让事情更糟。' },
+  { id:11, name:'正义', nameCN:'正义', keywords:['公平','真相','因果'], meaning:'真相将浮出水面，公正的结果会到来，相信因果法则。', reversed:'不公平，逃避责任，自欺欺人。' },
+  { id:12, name:'倒吊人', nameCN:'倒吊人', keywords:['牺牲','换个角度','等待'], meaning:'暂停不是放弃，换个角度看世界，会有全新的领悟。', reversed:'无谓的牺牲，固执己见不肯改变。' },
+  { id:13, name:'死神', nameCN:'死神', keywords:['结束','重生','蜕变'], meaning:'旧的必须结束，新的才能开始，这不是终点而是蜕变。', reversed:'抗拒改变，停滞不前。' },
+  { id:14, name:'节制', nameCN:'节制', keywords:['平衡','调和','耐心'], meaning:'保持平衡和中庸，一切都会在合适的时机到来。', reversed:'失衡，过度，需要找回节奏。' },
+  { id:15, name:'恶魔', nameCN:'恶魔', keywords:['束缚','欲望','阴影'], meaning:'你被什么束缚住了？认识欲望，才能获得真正的自由。', reversed:'挣脱束缚，看清真相，重获自由。' },
+  { id:16, name:'高塔', nameCN:'高塔', keywords:['突变','崩塌','觉醒'], meaning:'旧的架构正在崩塌，这不是灾难，而是重建的机会。', reversed:'避免崩溃，但压抑只会让问题更严重。' },
+  { id:17, name:'星星', nameCN:'星星', keywords:['希望','疗愈','灵感'], meaning:'希望之光正在照耀你，疗愈的时刻到了，相信未来。', reversed:'失去希望，不相信自己值得美好。' },
+  { id:18, name:'月亮', nameCN:'月亮', keywords:['潜意识','恐惧','幻象'], meaning:'事情不是表面那样，相信直觉，穿越迷雾。', reversed:'恐惧消散，真相浮现。' },
+  { id:19, name:'太阳', nameCN:'太阳', keywords:['快乐','成功','活力'], meaning:'阳光普照的时期，成功和喜悦都属于你。', reversed:'暂时的阴霾，快乐被遮挡但不会消失。' },
+  { id:20, name:'审判', nameCN:'审判', keywords:['觉醒','召唤','重生'], meaning:'听到内心的召唤，做出重要的觉醒，新的人生阶段开启。', reversed:'逃避召唤，拒绝面对自己。' },
+  { id:21, name:'世界', nameCN:'世界', keywords:['完成','圆满','旅程'], meaning:'一个重要的周期圆满完成，你已准备好进入新的境界。', reversed:'未完成，拖延，还有最后一步需要完成。' }
+];
+
+// 领域列表
+const TYPES = [
+  { key:'love', icon:'💕', label:'感情' },
+  { key:'career', icon:'💼', label:'事业' },
+  { key:'money', icon:'💰', label:'财运' },
+  { key:'health', icon:'🌿', label:'健康' },
+  { key:'family', icon:'🏠', label:'家庭' },
+  { key:'other', icon:'✨', label:'其他' }
+];
+
+// 心情列表
+const MOODS = [
+  { key:'anxious', label:'😰 焦虑' },
+  { key:'confused', label:'🤔 迷茫' },
+  { key:'calm', label:'😌 平静' },
+  { key:'sad', label:'💔 伤心' },
+  { key:'excited', label:'🔥 期待' },
+  { key:'unknown', label:'😶 说不清' }
+];
+
+// ============ 状态管理 ============
+let state = {
+  userName: '',
+  questionType: '',
+  questionText: '',
+  mood: '',
+  pickedCards: [],
+  readingResult: null,
+  selectedPrice: '49.9',
+  unlockedCards: JSON.parse(localStorage.getItem('tarot_unlocked') || '{}')
+};
+
+// 预设解锁码
+const UNLOCK_CODES = {
+  'LINGXI-001': '29.9', 'LINGXI-002': '29.9', 'LINGXI-003': '29.9',
+  'LINGXI-004': '29.9', 'LINGXI-005': '29.9', 'LINGXI-006': '29.9',
+  'LINGXI-007': '29.9', 'LINGXI-008': '29.9', 'LINGXI-009': '29.9',
+  'LINGXI-010': '29.9', 'LINGXI-011': '29.9', 'LINGXI-012': '29.9',
+  'LINGXI-013': '29.9', 'LINGXI-014': '29.9', 'LINGXI-015': '29.9',
+  'LINGXI-016': '29.9', 'LINGXI-017': '29.9', 'LINGXI-018': '29.9',
+  'LINGXI-019': '29.9', 'LINGXI-020': '29.9',
+  'LINGXI-D01': '49.9', 'LINGXI-D02': '49.9', 'LINGXI-D03': '49.9',
+  'LINGXI-D04': '49.9', 'LINGXI-D05': '49.9', 'LINGXI-D06': '49.9',
+  'LINGXI-D07': '49.9', 'LINGXI-D08': '49.9', 'LINGXI-D09': '49.9',
+  'LINGXI-D10': '49.9', 'LINGXI-D11': '49.9', 'LINGXI-D12': '49.9',
+  'LINGXI-D13': '49.9', 'LINGXI-D14': '49.9', 'LINGXI-D15': '49.9',
+  'LINGXI-D16': '49.9', 'LINGXI-D17': '49.9', 'LINGXI-D18': '49.9',
+  'LINGXI-D19': '49.9', 'LINGXI-D20': '49.9',
+  'LINGXI-H01': '128', 'LINGXI-H02': '128', 'LINGXI-H03': '128',
+  'LINGXI-H04': '128', 'LINGXI-H05': '128', 'LINGXI-H06': '128',
+  'LINGXI-H07': '128', 'LINGXI-H08': '128', 'LINGXI-H09': '128',
+  'LINGXI-H10': '128'
+};
+
+let usedUnlockCodes = JSON.parse(localStorage.getItem('tarot_used_codes') || '{}');
+
+// ============ API 配置 ============
+const DEEPSEEK_API_KEY = 'YOUR_DEEPSEEK_API_KEY'; // 你自己的key填这里，不要发给我
+const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+
+// ============ 初始化 ============
+function init() {
+  createStars();
+  renderTypeGrid();
+  renderMoodTags();
+  renderPickGrid();
+  renderPriceCards();
+  updateFooter();
+  document.getElementById('secretEntry').addEventListener('click', onSecretClick);
+}
+let secretClicks = 0;
+
+function onSecretClick() {
+  secretClicks++;
+  if (secretClicks >= 5) {
+    secretClicks = 0;
+    showAdmin();
+  }
+}
+
+// 星空背景
+function createStars() {
+  const container = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.width = (Math.random() * 3 + 1) + 'px';
+    star.style.height = star.style.width;
+    star.style.setProperty('--dur', (Math.random() * 3 + 2) + 's');
+    star.style.setProperty('--delay', Math.random() * 3 + 's');
+    star.style.setProperty('--peak', Math.random() * 0.6 + 0.4);
+    container.appendChild(star);
+  }
+}
+
+// ============ 步骤导航 ============
+function goTo(stepId) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById(stepId).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextStep(from, to) {
+  const fromEl = document.getElementById(from);
+  if (!fromEl || !fromEl.classList.contains('active')) return;
+
+  // 验证输入
+  if (from === 'step-name') {
+    const val = document.getElementById('userName').value.trim();
+    if (!val) { shakeEl(document.getElementById('userName')); return; }
+    state.userName = val;
+  }
+  if (from === 'step-type') {
+    if (!state.questionType) return;
+  }
+  if (from === 'step-mood') {
+    if (!state.mood) return;
+  }
+
+  if (from === 'step-question') {
+    state.questionText = document.getElementById('userQuestion').value.trim();
+  }
+
+  if (to === 'step-ritual') {
+    startRitual();
+  }
+  goTo(to);
+}
+
+function shakeEl(el) {
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = 'shake 0.5s ease';
+}
+
+// ============ 领域选择 ============
+function renderTypeGrid() {
+  const grid = document.getElementById('typeGrid');
+  grid.innerHTML = TYPES.map(t => `
+    <div class="choice-card" data-key="${t.key}" onclick="selectType('${t.key}')">
+      <span class="icon">${t.icon}</span>
+      <span class="label">${t.label}</span>
+    </div>
+  `).join('');
+}
+
+function selectType(key) {
+  state.questionType = key;
+  document.querySelectorAll('#typeGrid .choice-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector(`#typeGrid [data-key="${key}"]`).classList.add('selected');
+  const btn = document.getElementById('btnTypeNext');
+  btn.disabled = false; btn.style.opacity = '1';
+}
+
+// ============ 心情选择 ============
+function renderMoodTags() {
+  document.getElementById('moodTags').innerHTML = MOODS.map(m => `
+    <div class="mood-tag" data-key="${m.key}" onclick="selectMood('${m.key}')">${m.label}</div>
+  `).join('');
+}
+
+function selectMood(key) {
+  state.mood = key;
+  document.querySelectorAll('#moodTags .mood-tag').forEach(t => t.classList.remove('selected'));
+  document.querySelector(`#moodTags [data-key="${key}"]`).classList.add('selected');
+  const btn = document.getElementById('btnMoodNext');
+  btn.disabled = false; btn.style.opacity = '1';
+}
+
+// ============ 能量仪式 ============
+function startRitual() {
+  goTo('step-ritual');
+  const texts = [
+    '闭上眼睛…',
+    '深呼吸…',
+    '默念你的问题…',
+    '灵犀正在连接你的能量场…',
+    '感受到了…'
+  ];
+  const el = document.getElementById('ritualText');
+  const btn = document.getElementById('btnRitual');
+  btn.style.display = 'none';
+  let i = 0;
+  const timer = setInterval(() => {
+    if (i < texts.length) {
+      el.textContent = texts[i];
+      el.style.animation = 'none'; el.offsetHeight; el.style.animation = 'fadeIn 0.6s ease';
+      i++;
+    }
+    if (i >= texts.length) {
+      clearInterval(timer);
+      setTimeout(() => { btn.style.display = 'inline-block'; }, 300);
+    }
+  }, 1000);
+}
+
+function finishRitual() {
+  goTo('step-pick');
+  renderPickGrid();
+}
+
+// ============ 选牌 ============
+function renderPickGrid() {
+  const grid = document.getElementById('pickGrid');
+  // 随机选6张牌背朝上
+  const pool = [...MAJOR_ARCANA].sort(() => Math.random() - 0.5).slice(0, 6);
+  state.cardPool = pool;
+  state.pickedCards = [];
+  grid.innerHTML = pool.map((card, idx) => `
+    <div class="choice-card" data-idx="${idx}" onclick="pickCard(${idx})" style="background:linear-gradient(135deg, #2a1050, #4a2080);border:2px solid #8a5ac0;min-height:100px;display:flex;align-items:center;justify-content:center;">
+      <div style="font-size:36px;">⭐</div>
+    </div>
+  `).join('');
+  document.getElementById('btnPick').disabled = true;
+  document.getElementById('btnPick').style.opacity = '0.5';
+}
+
+function pickCard(idx) {
+  if (state.pickedCards.find(c => c.idx === idx)) return;
+  if (state.pickedCards.length >= 3) return;
+
+  state.pickedCards.push({ idx, card: state.cardPool[idx] });
+  const el = document.querySelector(`#pickGrid [data-idx="${idx}"]`);
+  el.style.borderColor = '#daa520';
+  el.style.boxShadow = '0 0 20px rgba(218,165,32,0.5)';
+  el.style.transform = 'translateY(-4px)';
+  el.innerHTML = '<div style="font-size:14px;color:#daa520;">已选 ✨</div>';
+
+  if (state.pickedCards.length === 3) {
+    document.getElementById('btnPick').disabled = false;
+    document.getElementById('btnPick').style.opacity = '1';
+  }
+}
+
+// ============ 翻牌 ============
+function revealCards() {
+  goTo('step-reveal');
+  const container = document.getElementById('revealCards');
+  const whisperEl = document.getElementById('revealWhisper');
+  const whispers = [
+    '「灵犀低语：命运之线正在牵引…」',
+    '「灵犀低语：宇宙在对你说话…」',
+    '「灵犀低语：答案已在你的心中…」'
+  ];
+
+  container.innerHTML = state.pickedCards.map((pc, i) => {
+    const card = pc.card;
+    const isRev = Math.random() > 0.5;
+    card._isReversed = isRev;
+    return `
+      <div class="tarot-card" id="revealCard${i}" onclick="flipCard(${i})">
+        <div class="tarot-card-inner">
+          <div class="tarot-card-face card-back">
+            <div class="star-icon">⭐</div>
+            <div class="moon-icon">🌙</div>
+          </div>
+          <div class="tarot-card-face card-front">
+            <div class="card-name">${card.nameCN}${isRev ? ' 逆位' : ''}</div>
+            <div class="card-desc">${isRev ? card.reversed : card.meaning}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('btnRevealNext').style.display = 'none';
+  state.flippedCount = 0;
+  // 不自动触发，等用户点击
+}
+
+function flipCard(i) {
+  const el = document.getElementById('revealCard' + i);
+  if (el.classList.contains('flipped')) return;
+  el.classList.add('flipped');
+  state.flippedCount = (state.flippedCount || 0) + 1;
+
+  const whispers = [
+    '「灵犀低语：命运之线正在牵引…」',
+    '「灵犀低语：宇宙在对你说话…」',
+    '「灵犀低语：答案已在你的心中…」'
+  ];
+  document.getElementById('revealWhisper').textContent = whispers[state.flippedCount - 1] || '';
+
+  if (state.flippedCount >= 3) {
+    setTimeout(() => {
+      document.getElementById('btnRevealNext').style.display = 'inline-block';
+    }, 600);
+  }
+}
+
+// ============ AI 解读 ============
+async function startReading() {
+  goTo('step-loading');
+
+  const cardsInfo = state.pickedCards.map(pc => {
+    const c = pc.card;
+    return `${c.nameCN}${c._isReversed ? '(逆位)' : '(正位)'}`;
+  }).join('、');
+
+  const prompt = `你是一位经验丰富的塔罗占卜师，叫灵犀。解读风格温暖有洞察力，有灵性不油腻，永远以给人希望的角度收尾。
+
+用户${state.userName}问的${TYPES.find(t=>t.key===state.questionType)?.label||''}问题：「${state.questionText}」
+当前心情：${MOODS.find(m=>m.key===state.mood)?.label||''}
+抽到的三张牌：${cardsInfo}
+
+请生成一篇约800字的完整塔罗解读。
+
+结构：
+1. 逐张解读每张牌与用户问题的深层关联
+2. 三张牌的综合运势分析
+3. 针对用户问题的具体行动建议（至少3条）
+4. 一句总结寄语
+
+语言温暖不油腻，有灵性但不神棍。巧妙使用巴纳姆效应让用户觉得「这就是在说我」。`;
+
+  try {
+    const response = await fetch(DEEPSEEK_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: '你是灵犀，一位经验丰富的塔罗占卜师。' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.8,
+        max_tokens: 2000
+      })
+    });
+
+    const data = await response.json();
+    if (data.choices && data.choices[0]) {
+      state.readingResult = data.choices[0].message.content;
+      showResult();
+    } else {
+      throw new Error('No response');
+    }
+  } catch (e) {
+    console.error('API Error:', e);
+    // 兜底：写死的示例解读
+    state.readingResult = generateFallbackReading();
+    showResult();
+  }
+}
+
+function generateFallbackReading() {
+  const cards = state.pickedCards.map(pc => pc.card);
+  const typeLabel = TYPES.find(t=>t.key===state.questionType)?.label||'生活';
+  return `亲爱的${state.userName}，感谢你信任灵犀。
+
+关于你问的${typeLabel}问题「${state.questionText}」，让我们来看看命运之牌想要告诉你什么。
+
+【${cards[0].nameCN}】
+${cards[0].meaning}
+
+这张牌的出现，与你的问题有着深刻的共鸣。它提醒你，${cards[0]._isReversed ? '需要警惕' + cards[0].reversed : cards[0].meaning}
+
+【${cards[1].nameCN}】
+${cards[1].meaning}
+
+作为中间牌，${cards[1].nameCN}代表着你当下的能量状态。${cards[1]._isReversed ? '逆位的出现意味着你需要' + cards[1].reversed : cards[1].meaning}
+
+【${cards[2].nameCN}】
+${cards[2].meaning}
+
+这是你的未来牌，预示着接下来的趋势。${cards[2]._isReversed ? '逆位提醒你' + cards[2].reversed : cards[2].meaning}
+
+【综合解读】
+三张牌的互动揭示了一个重要的信息：宇宙正在为你重新排列一切。你的${typeLabel}之路虽然不会一帆风顺，但每一张牌都在告诉你——你走在对的方向上。
+
+【行动建议】
+1. 相信你的直觉，特别是在接下来的一周
+2. 不要急于做重大决定，等情绪平复再行动
+3. 和信任的人聊聊你的困惑，他们会给你惊喜的视角
+
+【灵犀寄语】
+命运之轮已经转动，你需要的答案，其实一直都在你心里。灵犀只是帮你把它照亮。
+
+✨ 愿你被宇宙温柔以待。`;
+}
+
+// ============ 结果展示 ============
+function showResult() {
+  goTo('step-result');
+  const full = state.readingResult;
+  const summary = full.substring(0, Math.min(200, full.length)) + '…';
+
+  document.getElementById('resultSummary').innerHTML = summary.replace(/\n/g, '<br>');
+  document.getElementById('resultFull').innerHTML = full.replace(/\n/g, '<br>');
+
+  document.getElementById('blurSection').style.display = 'block';
+  document.getElementById('shareSection').style.display = 'none';
+
+  // 检查是否已解锁
+  const sessionKey = state.pickedCards.map(pc => pc.card.id).join('-');
+  const unlockedTier = state.unlockedCards[sessionKey];
+  if (unlockedTier) {
+    unlockResult(unlockedTier);
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function unlockResult(tier) {
+  document.getElementById('blurSection').querySelector('.blur-content').style.filter = 'none';
+  document.getElementById('blurSection').querySelector('.blur-content').style.pointerEvents = 'auto';
+  document.getElementById('blurSection').querySelector('.blur-cover').style.display = 'none';
+  document.getElementById('unlockInputArea').style.display = 'none';
+  document.getElementById('shareSection').style.display = 'block';
+  document.getElementById('resultSummary').style.display = 'none';
+
+  const sessionKey = state.pickedCards.map(pc => pc.card.id).join('-');
+  state.unlockedCards[sessionKey] = tier;
+  localStorage.setItem('tarot_unlocked', JSON.stringify(state.unlockedCards));
+}
+
+// ============ 付费弹窗 ============
+function renderPriceCards() {
+  const prices = [
+    { amount:'¥29.9', desc:'基础解读 · 约800字完整报告', tier:'29.9', badge:'' },
+    { amount:'¥49.9', desc:'深度解读 · 约2000字 + 行动建议 + 7日运势', tier:'49.9', badge:'🔥最多人选' },
+    { amount:'¥128', desc:'关系合盘 · 两人关系深度分析', tier:'128', badge:'💑' }
+  ];
+  document.getElementById('priceCards').innerHTML = prices.map(p => `
+    <div class="price-card${state.selectedPrice===p.tier?' selected':''}" data-tier="${p.tier}" onclick="selectPrice('${p.tier}')">
+      <div class="radio"></div>
+      <div class="price-info">
+        <div class="price-amount">${p.amount} ${p.badge ? `<span class="badge">${p.badge}</span>`:''}</div>
+        <div class="price-desc">${p.desc}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectPrice(tier) {
+  state.selectedPrice = tier;
+  renderPriceCards();
+}
+
+function showPayModal() {
+  document.getElementById('payModal').classList.add('show');
+  document.getElementById('unlockCodePay').value = '';
+}
+
+function closePayModal() {
+  document.getElementById('payModal').classList.remove('show');
+}
+
+function scrollToUnlock() {
+  document.getElementById('unlockCode').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('unlockCode').focus();
+}
+
+// ============ 解锁码验证 ============
+function verifyUnlockCodeBase(code, modalCloseFn) {
+  const normalized = code.trim().toUpperCase();
+  const tier = UNLOCK_CODES[normalized];
+
+  if (!tier) {
+    alert('解锁码无效，请检查后重试。付款请添加微信获取解锁码。');
+    return false;
+  }
+  if (usedUnlockCodes[normalized]) {
+    alert('该解锁码已被使用。如需新的解锁码，请添加微信购买。');
+    return false;
+  }
+
+  // 标记已使用
+  usedUnlockCodes[normalized] = true;
+  localStorage.setItem('tarot_used_codes', JSON.stringify(usedUnlockCodes));
+
+  unlockResult(tier);
+  if (modalCloseFn) modalCloseFn();
+  alert('✨ 解锁成功！完整解读已为你展开。');
+  return true;
+}
+
+function verifyUnlockCode() {
+  verifyUnlockCodeBase(document.getElementById('unlockCode').value);
+}
+
+function verifyUnlockCodePay() {
+  verifyUnlockCodeBase(document.getElementById('unlockCodePay').value, closePayModal);
+}
+
+function verifyUnlockCodeOnly() {
+  const success = verifyUnlockCodeBase(document.getElementById('unlockCodeOnly').value);
+  if (success) {
+    // 回到结果页
+    goTo('step-result');
+  }
+}
+
+// ============ 分享 ============
+function shareResult() {
+  const text = `🔮 灵犀塔罗刚刚给我算了一次，太准了！\n快来测测你的运势 →`;
+  if (navigator.share) {
+    navigator.share({ title: '灵犀塔罗', text, url: window.location.href });
+  } else {
+    navigator.clipboard.writeText(text + ' ' + window.location.href).then(() => {
+      alert('链接已复制！去朋友圈/小红书分享吧 ✨');
+    });
+  }
+}
+
+// ============ 重置 ============
+function resetAll() {
+  state.userName = '';
+  state.questionType = '';
+  state.questionText = '';
+  state.mood = '';
+  state.pickedCards = [];
+  state.readingResult = null;
+  state.selectedPrice = '49.9';
+  state.flippedCount = 0;
+  document.getElementById('userName').value = '';
+  document.getElementById('userQuestion').value = '';
+  document.getElementById('unlockCode').value = '';
+  document.getElementById('unlockCodePay').value = '';
+  document.getElementById('unlockCodeOnly').value = '';
+  document.getElementById('resultSummary').innerHTML = '';
+  document.getElementById('resultFull').innerHTML = '';
+  document.getElementById('blurSection').querySelector('.blur-content').style.filter = 'blur(8px)';
+  document.getElementById('blurSection').querySelector('.blur-content').style.pointerEvents = 'none';
+  document.getElementById('blurSection').querySelector('.blur-cover').style.display = 'flex';
+  document.getElementById('unlockInputArea').style.display = 'block';
+  document.getElementById('shareSection').style.display = 'none';
+  document.getElementById('resultSummary').style.display = 'block';
+  document.getElementById('btnTypeNext').disabled = true;
+  document.getElementById('btnTypeNext').style.opacity = '0.5';
+  document.getElementById('btnMoodNext').disabled = true;
+  document.getElementById('btnMoodNext').style.opacity = '0.5';
+  document.getElementById('btnPick').disabled = true;
+  document.getElementById('btnPick').style.opacity = '0.5';
+  document.getElementById('btnRevealNext').style.display = 'none';
+  document.getElementById('btnRitual').style.display = 'none';
+  document.querySelectorAll('#typeGrid .choice-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('#moodTags .mood-tag').forEach(t => t.classList.remove('selected'));
+  goTo('step-home');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============ 管理后台 ============
+function showAdmin() {
+  let html = '<div style="font-size:12px;color:#9a8aaa;">点击解锁码可复制，已使用会标灰</div><br>';
+  for (const [code, tier] of Object.entries(UNLOCK_CODES)) {
+    const used = usedUnlockCodes[code];
+    html += `<div style="padding:6px 0;border-bottom:1px solid #2a1a40;cursor:pointer;${used?'color:#5a3a5a;text-decoration:line-through;':''}" onclick="copyCode('${code}')">
+      <b>${code}</b> | ${tier==='128'?'💑合盘':tier==='49.9'?'🔥深度':'💰基础'} | ${used ? '✓ 已用' : '○ 可用'}
+    </div>`;
+  }
+  document.getElementById('adminContent').innerHTML = html;
+  document.getElementById('adminModal').classList.add('show');
+}
+
+function copyCode(code) {
+  navigator.clipboard.writeText(code).then(() => {
+    alert('已复制: ' + code);
+  });
+}
+
+// ============ 其他 ============
+function updateFooter() {
+  document.getElementById('footerText').textContent = '灵犀塔罗 · AI 占卜仅供娱乐参考 · 请理性看待';
+}
+
+// 页面加载
+init();
+</script>
+
+<!-- 抖动动画 -->
+<style>
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    50% { transform: translateX(8px); }
+    75% { transform: translateX(-4px); }
+  }
+</style>
+</body>
+</html>

@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingxi Tarot — Instant AI Tarot Reading | From $4.99</title>
+  <meta name="description" content="Get an instant AI-powered tarot reading in under 2 minutes. Pick 3 cards, receive a personalized interpretation. No subscription, pay per reading — starting at $4.99. Love, career, or life — the cards have an answer.">
+  <meta name="keywords" content="AI tarot reading, instant tarot, online tarot, love tarot reading, career tarot, tarot card reading, free tarot, cheap tarot reading, spiritual guidance">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://lingxitarot.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Lingxi Tarot — Instant AI Tarot Reading | From $4.99">
+  <meta property="og:description" content="Instant AI tarot readings. Pick 3 cards, get a personalized interpretation in minutes. No subscription — pay once, read forever.">
+  <meta property="og:site_name" content="Lingxi Tarot">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Lingxi Tarot — Instant AI Tarot Reading | From $4.99">
+  <meta name="twitter:description" content="Instant AI tarot readings. Pick 3 cards, get a personalized interpretation. No subscription needed.">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Lingxi Tarot",
+    "description": "Instant AI-powered tarot reading. Pick 3 cards and receive a personalized interpretation starting at $4.99 per reading.",
+    "applicationCategory": "LifestyleApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "4.99",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+
+  <!-- Font Awesome -->
+  <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #0a0012;
+      color: #e8d5f5;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    /* Starry background */
+    .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+    .star {
+      position: absolute; background: white; border-radius: 50%;
+      animation: twinkle var(--dur) ease-in-out infinite;
+      animation-delay: var(--delay); opacity: 0;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: var(--peak); }
+    }
+    /* Main container */
+    .app {
+      position: relative; z-index: 1;
+      max-width: 440px; margin: 0 auto;
+      min-height: 100vh; padding: 20px 24px;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center;
+    }
+    /* Steps */
+    .step { display: none; width: 100%; text-align: center; flex-direction: column; align-items: center; animation: fadeIn 0.5s ease; }
+    .step.active { display: flex; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Typography */
+    .main-title {
+      font-size: 42px; font-weight: 700;
+      background: linear-gradient(135deg, #c9a0dc, #f0d080);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+    .sub-title { font-size: 14px; color: #9a8aaa; margin-bottom: 32px; letter-spacing: 2px; }
+    .step-title { font-size: 22px; color: #d4b8e8; margin-bottom: 8px; font-weight: 600; }
+    .step-sub { font-size: 13px; color: #8a7a9a; margin-bottom: 28px; }
+    /* Inputs */
+    input, textarea {
+      width: 100%; padding: 14px 18px;
+      border: 1px solid #3a2a50; border-radius: 14px;
+      background: rgba(20, 8, 40, 0.8);
+      color: #e8d5f5; font-size: 16px;
+      outline: none; transition: border 0.3s;
+      font-family: inherit;
+    }
+    input:focus, textarea:focus { border-color: #9a6ac0; box-shadow: 0 0 20px rgba(154,106,192,0.2); }
+    textarea { resize: none; height: 100px; }
+    /* Buttons */
+    .btn {
+      display: inline-block; padding: 14px 40px;
+      border: none; border-radius: 30px;
+      font-size: 16px; font-weight: 600; cursor: pointer;
+      transition: all 0.3s; letter-spacing: 1px;
+      font-family: inherit;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #6a3a9a, #8a5ac0);
+      color: #fff; font-size: 18px; padding: 15px 50px;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(138,90,192,0.4); }
+    .btn-small { padding: 10px 24px; font-size: 14px; }
+    .btn-outline {
+      background: transparent; border: 1px solid #6a3a9a;
+      color: #c9a0dc;
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, #b8860b, #daa520);
+      color: #1a0010; font-weight: 700;
+    }
+    .btn-gold:hover { box-shadow: 0 8px 30px rgba(218,165,32,0.5); }
+    /* Choice cards */
+    .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; margin-bottom: 28px; }
+    .choice-card {
+      background: rgba(20, 8, 40, 0.8); border: 1px solid #3a2a50;
+      border-radius: 16px; padding: 20px 10px; cursor: pointer;
+      transition: all 0.3s; text-align: center;
+    }
+    .choice-card .icon { font-size: 32px; display: block; margin-bottom: 8px; }
+    .choice-card .label { font-size: 14px; color: #b8a0c8; }
+    .choice-card.selected { border-color: #9a6ac0; background: rgba(106,58,154,0.2); box-shadow: 0 0 20px rgba(154,106,192,0.3); }
+    /* Mood tags */
+    .mood-tags { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 28px; }
+    .mood-tag {
+      padding: 10px 20px; border-radius: 25px; cursor: pointer;
+      background: rgba(20, 8, 40, 0.8); border: 1px solid #3a2a50;
+      font-size: 14px; transition: all 0.3s;
+    }
+    .mood-tag.selected { border-color: #9a6ac0; background: rgba(106,58,154,0.3); }
+    /* Tarot cards */
+    .tarot-cards { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+    .tarot-card { width: 100px; height: 150px; perspective: 800px; cursor: pointer; }
+    .tarot-card-inner {
+      width: 100%; height: 100%; position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .tarot-card.flipped .tarot-card-inner { transform: rotateY(180deg); }
+    .tarot-card-face {
+      position: absolute; width: 100%; height: 100%;
+      backface-visibility: hidden; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; font-size: 12px; padding: 8px;
+    }
+    .card-back {
+      background: linear-gradient(135deg, #2a1050, #4a2080);
+      border: 2px solid #8a5ac0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .card-back .star-icon { font-size: 36px; }
+    .card-back .moon-icon { font-size: 20px; margin-top: 4px; }
+    .card-front {
+      background: linear-gradient(135deg, #1a0030, #2a1050);
+      border: 2px solid #daa520; transform: rotateY(180deg);
+      flex-direction: column; gap: 4px;
+    }
+    .card-front .card-name { font-size: 14px; font-weight: 700; color: #daa520; }
+    .card-front .card-desc { font-size: 10px; color: #b8a0c8; line-height: 1.3; }
+    /* Energy orb */
+    .energy-orb {
+      width: 120px; height: 120px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(138,90,192,0.6), rgba(106,58,154,0.2), transparent);
+      animation: pulse 2s ease-in-out infinite;
+      margin: 20px auto; display: flex; align-items: center; justify-content: center;
+    }
+    .energy-orb-inner {
+      width: 60px; height: 60px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(218,165,32,0.8), rgba(138,90,192,0.4));
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 1; }
+    }
+    /* Blur overlay for paywall */
+    .blur-overlay { position: relative; }
+    .blur-content { filter: blur(8px); user-select: none; pointer-events: none; }
+    .blur-cover {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; z-index: 10;
+      background: rgba(10, 0, 18, 0.5);
+    }
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85); z-index: 100;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: #180828; border: 1px solid #3a2a50; border-radius: 20px;
+      padding: 28px 20px; max-width: 400px; width: 90%;
+      text-align: center; max-height: 90vh; overflow-y: auto;
+    }
+    .modal h3 { font-size: 20px; margin-bottom: 16px; color: #daa520; }
+    /* Price cards */
+    .price-cards { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+    .price-card {
+      background: rgba(20, 8, 40, 0.8); border: 2px solid #3a2a50;
+      border-radius: 14px; padding: 16px; cursor: pointer; text-align: left;
+      transition: all 0.3s; display: flex; align-items: center; gap: 12px;
+    }
+    .price-card:hover { border-color: #8a5ac0; }
+    .price-card.selected { border-color: #daa520; background: rgba(218,165,32,0.08); }
+    .price-card .price-info { flex: 1; }
+    .price-card .price-amount { font-size: 20px; font-weight: 700; color: #daa520; }
+    .price-card .price-desc { font-size: 12px; color: #9a8aaa; margin-top: 2px; }
+    .price-card .badge {
+      background: #daa520; color: #1a0010; font-size: 11px;
+      padding: 3px 8px; border-radius: 10px; font-weight: 600;
+    }
+    /* Share */
+    .share-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid #2a1a40; }
+    .share-btn { width: 100%; margin-bottom: 8px; }
+    /* Footer */
+    .footer-text { font-size: 11px; color: #4a3a5a; margin-top: 16px; text-align: center; }
+    .footer-links { font-size: 11px; color: #4a3a5a; margin-top: 8px; text-align: center; }
+    .footer-links a { color: #6a4a8a; text-decoration: none; margin: 0 6px; }
+    .footer-links a:hover { color: #9a6ac0; }
+    /* Language switcher */
+    .lang-switch {
+      position: fixed; top: 12px; right: 12px; z-index: 200;
+      font-size: 12px; padding: 6px 12px;
+      border-radius: 16px; border: 1px solid #3a2a50;
+      background: rgba(20, 8, 40, 0.8); color: #9a8aaa;
+      cursor: pointer; transition: all 0.3s;
+      text-decoration: none;
+    }
+    .lang-switch:hover { border-color: #8a5ac0; color: #c9a0dc; }
+    /* Responsive */
+    @media (max-width: 380px) {
+      .tarot-card { width: 80px; height: 120px; }
+      .card-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Starry background -->
+<div class="stars" id="stars"></div>
+
+<!-- Language switcher -->
+<a class="lang-switch" href="index.html" title="中文版">中文</a>
+
+<!-- Main app -->
+<div class="app" id="app">
+
+  <!-- Home -->
+  <div class="step active" id="step-home">
+    <div class="main-title">Lingxi Tarot</div>
+    <div class="sub-title">Whisper your question. The Universe will answer.</div>
+    <button class="btn btn-primary" onclick="goTo('step-name')">Begin Your Reading 🔮</button>
+    <div style="margin-top:12px;font-size:11px;color:#5a4a6a;">Instant AI reading · No subscription · From $4.99</div>
+  </div>
+
+  <!-- Step 1: Name -->
+  <div class="step" id="step-name">
+    <div class="step-title">I'm Lingxi. What's your name?</div>
+    <div class="step-sub">Your name connects your energy to the cards</div>
+    <input type="text" id="userName" placeholder="Your name or nickname" maxlength="20">
+    <div style="margin-top:24px;">
+      <button class="btn btn-primary" onclick="nextStep('step-name', 'step-type')">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Category -->
+  <div class="step" id="step-type">
+    <div class="step-title">What's on your mind?</div>
+    <div class="step-sub">Choose the area you'd like guidance on</div>
+    <div class="card-grid" id="typeGrid"></div>
+    <button class="btn btn-primary" id="btnTypeNext" onclick="nextStep('step-type', 'step-question')" disabled style="opacity:0.5;">Continue →</button>
+  </div>
+
+  <!-- Step 3: Detailed question -->
+  <div class="step" id="step-question">
+    <div class="step-title">Tell me more</div>
+    <div class="step-sub">The more specific your question, the clearer the answer</div>
+    <textarea id="userQuestion" placeholder="e.g. Should I take the new job offer? Where is my relationship heading in the next 3 months?"></textarea>
+    <div style="margin-top:24px;">
+      <button class="btn btn-primary" onclick="nextStep('step-question', 'step-mood')">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Step 4: Mood -->
+  <div class="step" id="step-mood">
+    <div class="step-title">How are you feeling right now?</div>
+    <div class="step-sub">Your emotional state shapes the reading</div>
+    <div class="mood-tags" id="moodTags"></div>
+    <button class="btn btn-primary" id="btnMoodNext" onclick="nextStep('step-mood', 'step-ritual')" disabled style="opacity:0.5;">Draw Your Cards 🔮</button>
+  </div>
+
+  <!-- Step 5: Energy ritual -->
+  <div class="step" id="step-ritual">
+    <div class="step-title">Connecting to the Universe</div>
+    <div class="step-sub">Close your eyes. Take three deep breaths...</div>
+    <div class="energy-orb"><div class="energy-orb-inner"></div></div>
+    <div id="ritualText" style="font-size:14px;color:#b8a0c8;min-height:40px;margin:12px 0;"></div>
+    <button class="btn btn-gold" id="btnRitual" onclick="finishRitual()" style="display:none; animation: fadeIn 0.8s ease;">
+      ✨ I Feel It — Let Me Pick
+    </button>
+  </div>
+
+  <!-- Step 6: Pick cards -->
+  <div class="step" id="step-pick">
+    <div class="step-title">Trust your intuition. Pick 3 cards.</div>
+    <div class="step-sub">Don't overthink — your first instinct is always right</div>
+    <div class="card-grid" id="pickGrid" style="grid-template-columns: repeat(3, 1fr);"></div>
+    <button class="btn btn-gold" id="btnPick" onclick="revealCards()" disabled style="opacity:0.5;">
+      🔮 Reveal Your Destiny
+    </button>
+  </div>
+
+  <!-- Step 7: Flip cards -->
+  <div class="step" id="step-reveal">
+    <div class="step-title" id="revealTitle">✨ Your Cards</div>
+    <div class="tarot-cards" id="revealCards"></div>
+    <div id="revealWhisper" style="font-size:13px;color:#b8a0c8;min-height:20px;margin:8px 0;"></div>
+    <button class="btn btn-gold" id="btnRevealNext" onclick="startReading()" style="display:none;">
+      ✨ View Your Reading
+    </button>
+  </div>
+
+  <!-- Step 8: Loading -->
+  <div class="step" id="step-loading">
+    <div class="energy-orb"><div class="energy-orb-inner"></div></div>
+    <div style="font-size:14px;color:#b8a0c8;margin-top:16px;">
+      Lingxi is channeling the wisdom of the cards for you...
+    </div>
+  </div>
+
+  <!-- Step 9: Results -->
+  <div class="step" id="step-result">
+    <div class="step-title">🔮 Your Reading</div>
+    <!-- Free preview -->
+    <div id="resultSummary" style="text-align:left;font-size:14px;line-height:1.8;color:#c8b8d8;width:100%;margin:16px 0;"></div>
+    <!-- Blurred full reading -->
+    <div class="blur-overlay" id="blurSection" style="width:100%;">
+      <div class="blur-content" id="resultFull" style="text-align:left;font-size:14px;line-height:1.8;color:#c8b8d8;margin-top:8px;"></div>
+      <div class="blur-cover" id="blurCover">
+        <div style="font-size:16px;color:#daa520;margin-bottom:12px;">🔒 Unlock Your Full Reading</div>
+        <button class="btn btn-gold" onclick="showPayModal()" style="margin-bottom:8px;">✨ Choose a Plan & Unlock</button>
+        <div style="margin-top:10px;font-size:12px;color:#8a7a9a;">One-time payment · Instant access · Read forever</div>
+      </div>
+    </div>
+    <!-- Share -->
+    <div class="share-section" id="shareSection" style="display:none;width:100%;">
+      <button class="btn btn-outline share-btn" onclick="shareResult()">📤 Share Your Reading</button>
+      <div style="font-size:12px;color:#8a7a9a;">📸 Screenshot to save your reading</div>
+      <div style="font-size:12px;color:#6a5a7a;margin-top:8px;">💫 Come back in 7 days — the cards may tell a different story</div>
+    </div>
+    <!-- Restart -->
+    <button class="btn btn-outline btn-small" onclick="resetAll()" style="margin-top:24px;">🔄 New Reading</button>
+  </div>
+
+</div>
+
+<!-- Payment modal -->
+<div class="modal-overlay" id="payModal">
+  <div class="modal">
+    <h3>🔮 Unlock Your Full Reading</h3>
+    <p style="font-size:13px;color:#9a8aaa;margin-bottom:12px;">One-time payment. No subscription. Read forever.</p>
+    <div class="price-cards" id="priceCards"></div>
+    <div style="margin-top:8px;font-size:11px;color:#6a5a7a;">
+      Secure payment via Lemon Squeezy · 30-day refund guarantee
+    </div>
+    <button class="btn btn-outline btn-small" onclick="closePayModal()" style="margin-top:12px;">Close</button>
+  </div>
+</div>
+
+<div class="footer-text">Lingxi Tarot · AI-powered readings for entertainment purposes · Use with an open heart</div>
+<div class="footer-links">
+  <a href="index.html">中文版</a> ·
+  <a href="mailto:hello@lingxitarot.com">Contact</a>
+</div>
+
+<script>
+// ============ LEMON SQUEEZY CONFIGURATION ============
+// Replace these with your actual Lemon Squeezy checkout links
+// after creating products at lemonsqueezy.com
+const LEMON_SQUEEZY_LINKS = {
+  'basic':   'https://YOUR_STORE.lemonsqueezy.com/checkout/buy/PRODUCT_ID_1',  // $4.99 Quick Reading
+  'deep':    'https://YOUR_STORE.lemonsqueezy.com/checkout/buy/PRODUCT_ID_2',  // $9.99 Deep Insight
+  'couple':  'https://YOUR_STORE.lemonsqueezy.com/checkout/buy/PRODUCT_ID_3'   // $19.99 Soul Bond
+};
+
+// ============ TAROT CARD DATA (Major Arcana) ============
+const MAJOR_ARCANA = [
+  { id:0,  name:'The Fool',       keywords:['beginnings','adventure','innocence'],    meaning:'A new journey is about to begin. Stay open, trust the Universe, and take that first step with courage.', reversed:'Recklessness, hesitation — are you refusing to leap when the moment calls for it?' },
+  { id:1,  name:'The Magician',   keywords:['creation','power','focus'],             meaning:'You have everything you need to manifest your desires. The time to act is now — channel your will.', reversed:'Untapped potential, manipulation, or skills going to waste. What are you not using?' },
+  { id:2,  name:'The High Priestess', keywords:['intuition','mystery','wisdom'],    meaning:'Trust your inner voice. The answer you seek is already within — be still and listen.', reversed:'Ignoring your intuition, secrets being kept, or disconnection from your inner self.' },
+  { id:3,  name:'The Empress',    keywords:['abundance','nurture','creativity'],     meaning:'A season of abundance and growth. Your efforts are about to bloom — enjoy the harvest.', reversed:'Creative block, over-dependence on others, or neglecting self-care.' },
+  { id:4,  name:'The Emperor',    keywords:['authority','stability','structure'],    meaning:'Build order and discipline. You are the architect of your life — lead with clarity and strength.', reversed:'Abuse of power, lack of discipline, or rigid control that stifles growth.' },
+  { id:5,  name:'The Hierophant', keywords:['faith','tradition','guidance'],         meaning:'Seek wisdom from trusted sources. Tradition and spiritual guidance will light your path.', reversed:'Blind conformity, breaking free from outdated rules, questioning authority.' },
+  { id:6,  name:'The Lovers',     keywords:['love','choice','harmony'],              meaning:'A meaningful choice in love or values stands before you. Follow your heart — it knows the way.', reversed:'Disharmony, a choice made against your true values, or disconnection in relationship.' },
+  { id:7,  name:'The Chariot',    keywords:['victory','will','determination'],       meaning:'Triumph through focus and willpower. Charge ahead with confidence — victory is yours.', reversed:'Loss of control, scattered energy, or heading in the wrong direction. Pause and recalibrate.' },
+  { id:8,  name:'Strength',       keywords:['courage','patience','inner power'],     meaning:'True strength comes from within. Gentle persistence conquers more than brute force ever could.', reversed:'Self-doubt, inner weakness, or letting fear overpower your natural resilience.' },
+  { id:9,  name:'The Hermit',     keywords:['introspection','solitude','wisdom'],    meaning:'Step back and go inward. The deepest insights come in solitude — this is a sacred pause.', reversed:'Isolation that has become unhealthy, refusing help, or avoiding necessary reflection.' },
+  { id:10, name:'Wheel of Fortune', keywords:['change','opportunity','cycles'],      meaning:'The Wheel is turning in your favor. A stroke of luck or a major shift is coming — embrace it.', reversed:'Bad luck, resisting change, or feeling stuck in a cycle you can break free from.' },
+  { id:11, name:'Justice',        keywords:['fairness','truth','consequences'],      meaning:'Truth will prevail. A fair outcome is on its way — take accountability and trust the process.', reversed:'Injustice, avoiding responsibility, or dishonesty that will catch up with you.' },
+  { id:12, name:'The Hanged Man', keywords:['sacrifice','perspective','surrender'],  meaning:'Pause is not failure. See things from a new angle — surrender brings unexpected breakthroughs.', reversed:'Pointless sacrifice, stubborn refusal to shift perspective, or unnecessary delay.' },
+  { id:13, name:'Death',          keywords:['ending','rebirth','transformation'],    meaning:'The old must end for the new to begin. This is not an ending but a metamorphosis — let go.', reversed:'Resisting necessary change, stagnation, or clinging to what no longer serves you.' },
+  { id:14, name:'Temperance',     keywords:['balance','harmony','patience'],         meaning:'Find your flow through balance. Everything arrives in divine timing — patience is your ally.', reversed:'Imbalance, excess, or rushing into things without finding your center.' },
+  { id:15, name:'The Devil',      keywords:['bondage','desire','shadow self'],       meaning:'What holds you captive? Recognize your chains — they are often of your own making. Freedom begins with awareness.', reversed:'Breaking free from addiction or toxic patterns, reclaiming your power.' },
+  { id:16, name:'The Tower',      keywords:['upheaval','collapse','awakening'],      meaning:'The structures built on false foundations are crumbling. This is not destruction — it is liberation.', reversed:'Avoiding inevitable change, prolonging the collapse, or denying the cracks in the foundation.' },
+  { id:17, name:'The Star',       keywords:['hope','healing','inspiration'],         meaning:'Hope shines upon you. A time of deep healing and renewed faith — you are being watched over.', reversed:'Hopelessness, refusing to believe you deserve better, or creative drought.' },
+  { id:18, name:'The Moon',       keywords:['subconscious','fear','illusion'],       meaning:'Not everything is as it seems. Trust your intuition through the fog — the truth will emerge.', reversed:'Fear clearing, illusions dissolving, or repressed emotions surfacing for healing.' },
+  { id:19, name:'The Sun',        keywords:['joy','success','vitality'],             meaning:'Radiant joy and success illuminate your path. This is your moment — bask in the light.', reversed:'Temporary clouds, dimmed joy that will return, or blocking your own happiness.' },
+  { id:20, name:'Judgement',      keywords:['awakening','calling','rebirth'],        meaning:'A powerful awakening calls you to rise. Answer the call — a new chapter of purpose awaits.', reversed:'Avoiding your calling, refusing self-reflection, or fear of the next level.' },
+  { id:21, name:'The World',      keywords:['completion','wholeness','journey'],     meaning:'A major cycle is complete. You stand at the threshold of a new world — celebration and fulfillment.', reversed:'Incompletion, delay, or the final step still waiting to be taken.' }
+];
+
+// Category list
+const TYPES = [
+  { key:'love',    icon:'💕', label:'Love' },
+  { key:'career',  icon:'💼', label:'Career' },
+  { key:'money',   icon:'💰', label:'Finances' },
+  { key:'health',  icon:'🌿', label:'Wellness' },
+  { key:'family',  icon:'🏠', label:'Family' },
+  { key:'other',   icon:'✨', label:'Other' }
+];
+
+// Mood list
+const MOODS = [
+  { key:'anxious',   label:'😰 Anxious' },
+  { key:'confused',  label:'🤔 Confused' },
+  { key:'calm',      label:'😌 Calm' },
+  { key:'sad',       label:'💔 Heartbroken' },
+  { key:'excited',   label:'🔥 Excited' },
+  { key:'unknown',   label:'😶 Not Sure' }
+];
+
+// ============ STATE ============
+let state = {
+  userName: '',
+  questionType: '',
+  questionText: '',
+  mood: '',
+  pickedCards: [],
+  readingResult: null,
+  selectedTier: 'deep',
+  unlocked: false
+};
+
+// ============ DEEPSEEK API CONFIG ============
+const DEEPSEEK_API_KEY = 'YOUR_DEEPSEEK_API_KEY';
+const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+
+// ============ INIT ============
+function init() {
+  createStars();
+  renderTypeGrid();
+  renderMoodTags();
+  renderPickGrid();
+  renderPriceCards();
+  checkReturnFromPayment();
+}
+
+// Star background
+function createStars() {
+  const container = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.width = (Math.random() * 3 + 1) + 'px';
+    star.style.height = star.style.width;
+    star.style.setProperty('--dur', (Math.random() * 3 + 2) + 's');
+    star.style.setProperty('--delay', Math.random() * 3 + 's');
+    star.style.setProperty('--peak', Math.random() * 0.6 + 0.4);
+    container.appendChild(star);
+  }
+}
+
+// ============ NAVIGATION ============
+function goTo(stepId) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(stepId);
+  if (el) el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextStep(from, to) {
+  const fromEl = document.getElementById(from);
+  if (!fromEl || !fromEl.classList.contains('active')) return;
+
+  if (from === 'step-name') {
+    const val = document.getElementById('userName').value.trim();
+    if (!val) { shakeEl(document.getElementById('userName')); return; }
+    state.userName = val;
+  }
+  if (from === 'step-type') {
+    if (!state.questionType) return;
+  }
+  if (from === 'step-mood') {
+    if (!state.mood) return;
+  }
+  if (from === 'step-question') {
+    state.questionText = document.getElementById('userQuestion').value.trim();
+  }
+  if (to === 'step-ritual') {
+    startRitual();
+    return;
+  }
+  goTo(to);
+}
+
+function shakeEl(el) {
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = 'shake 0.5s ease';
+}
+
+// ============ CATEGORY SELECTION ============
+function renderTypeGrid() {
+  const grid = document.getElementById('typeGrid');
+  grid.innerHTML = TYPES.map(t => `
+    <div class="choice-card" data-key="${t.key}" onclick="selectType('${t.key}')">
+      <span class="icon">${t.icon}</span>
+      <span class="label">${t.label}</span>
+    </div>
+  `).join('');
+}
+
+function selectType(key) {
+  state.questionType = key;
+  document.querySelectorAll('#typeGrid .choice-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector(`#typeGrid [data-key="${key}"]`).classList.add('selected');
+  const btn = document.getElementById('btnTypeNext');
+  btn.disabled = false; btn.style.opacity = '1';
+}
+
+// ============ MOOD SELECTION ============
+function renderMoodTags() {
+  document.getElementById('moodTags').innerHTML = MOODS.map(m => `
+    <div class="mood-tag" data-key="${m.key}" onclick="selectMood('${m.key}')">${m.label}</div>
+  `).join('');
+}
+
+function selectMood(key) {
+  state.mood = key;
+  document.querySelectorAll('#moodTags .mood-tag').forEach(t => t.classList.remove('selected'));
+  document.querySelector(`#moodTags [data-key="${key}"]`).classList.add('selected');
+  const btn = document.getElementById('btnMoodNext');
+  btn.disabled = false; btn.style.opacity = '1';
+}
+
+// ============ ENERGY RITUAL ============
+function startRitual() {
+  goTo('step-ritual');
+  const texts = [
+    'Close your eyes...',
+    'Take a deep breath...',
+    'Whisper your question to yourself...',
+    'Lingxi is attuning to your energy...',
+    'The connection is forming...'
+  ];
+  const el = document.getElementById('ritualText');
+  const btn = document.getElementById('btnRitual');
+  btn.style.display = 'none';
+  let i = 0;
+  const timer = setInterval(() => {
+    if (i < texts.length) {
+      el.textContent = texts[i];
+      el.style.animation = 'none'; el.offsetHeight; el.style.animation = 'fadeIn 0.6s ease';
+      i++;
+    }
+    if (i >= texts.length) {
+      clearInterval(timer);
+      setTimeout(() => { btn.style.display = 'inline-block'; }, 300);
+    }
+  }, 1200);
+}
+
+function finishRitual() {
+  goTo('step-pick');
+  renderPickGrid();
+}
+
+// ============ CARD PICKING ============
+function renderPickGrid() {
+  const grid = document.getElementById('pickGrid');
+  const pool = [...MAJOR_ARCANA].sort(() => Math.random() - 0.5).slice(0, 6);
+  state.cardPool = pool;
+  state.pickedCards = [];
+  grid.innerHTML = pool.map((card, idx) => `
+    <div class="choice-card" data-idx="${idx}" onclick="pickCard(${idx})" style="background:linear-gradient(135deg, #2a1050, #4a2080);border:2px solid #8a5ac0;min-height:100px;display:flex;align-items:center;justify-content:center;">
+      <div style="font-size:36px;">⭐</div>
+    </div>
+  `).join('');
+  document.getElementById('btnPick').disabled = true;
+  document.getElementById('btnPick').style.opacity = '0.5';
+}
+
+function pickCard(idx) {
+  if (state.pickedCards.find(c => c.idx === idx)) return;
+  if (state.pickedCards.length >= 3) return;
+
+  state.pickedCards.push({ idx, card: state.cardPool[idx] });
+  const el = document.querySelector(`#pickGrid [data-idx="${idx}"]`);
+  el.style.borderColor = '#daa520';
+  el.style.boxShadow = '0 0 20px rgba(218,165,32,0.5)';
+  el.style.transform = 'translateY(-4px)';
+  el.innerHTML = '<div style="font-size:14px;color:#daa520;">Chosen ✨</div>';
+
+  if (state.pickedCards.length === 3) {
+    document.getElementById('btnPick').disabled = false;
+    document.getElementById('btnPick').style.opacity = '1';
+  }
+}
+
+// ============ REVEAL CARDS ============
+function revealCards() {
+  goTo('step-reveal');
+  const container = document.getElementById('revealCards');
+  const whisperEl = document.getElementById('revealWhisper');
+
+  container.innerHTML = state.pickedCards.map((pc, i) => {
+    const card = pc.card;
+    const isRev = Math.random() > 0.5;
+    card._isReversed = isRev;
+    return `
+      <div class="tarot-card" id="revealCard${i}" onclick="flipCard(${i})">
+        <div class="tarot-card-inner">
+          <div class="tarot-card-face card-back">
+            <div class="star-icon">⭐</div>
+            <div class="moon-icon">🌙</div>
+          </div>
+          <div class="tarot-card-face card-front">
+            <div class="card-name">${card.name}${isRev ? ' (Reversed)' : ''}</div>
+            <div class="card-desc">${isRev ? card.reversed : card.meaning}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('btnRevealNext').style.display = 'none';
+  state.flippedCount = 0;
+}
+
+function flipCard(i) {
+  const el = document.getElementById('revealCard' + i);
+  if (el.classList.contains('flipped')) return;
+  el.classList.add('flipped');
+  state.flippedCount = (state.flippedCount || 0) + 1;
+
+  const whispers = [
+    '"The threads of destiny are pulling..."',
+    '"The Universe is speaking to you..."',
+    '"The answer has always been within..."'
+  ];
+  document.getElementById('revealWhisper').textContent = whispers[state.flippedCount - 1] || '';
+
+  if (state.flippedCount >= 3) {
+    setTimeout(() => {
+      document.getElementById('btnRevealNext').style.display = 'inline-block';
+    }, 600);
+  }
+}
+
+// ============ AI READING ============
+async function startReading() {
+  goTo('step-loading');
+
+  const cardsInfo = state.pickedCards.map(pc => {
+    const c = pc.card;
+    return `${c.name}${c._isReversed ? ' (Reversed)' : ' (Upright)'}`;
+  }).join(', ');
+
+  const prompt = `You are Lingxi, an experienced and deeply intuitive tarot reader. Your readings are warm, psychologically insightful, and spiritually grounded — never cheesy or overly mystical. You always end on a hopeful, empowering note.
+
+Reading for: ${state.userName}
+Topic: ${TYPES.find(t=>t.key===state.questionType)?.label||'Life'}
+Question: "${state.questionText}"
+Mood: ${MOODS.find(m=>m.key===state.mood)?.label||'Unknown'}
+Cards drawn: ${cardsInfo}
+
+Write a comprehensive tarot reading (~800 words). Structure:
+
+1. Card-by-card interpretation — what each card means specifically for the querent's question and situation
+2. Synthesis — how the three cards interact and what story they tell together
+3. Actionable guidance — 3-4 specific, practical steps the querent can take
+4. Closing message — a warm, personal note that leaves them feeling seen and hopeful
+
+Style guide:
+- Write like a wise, warm friend — not a fortune teller
+- Use psychological language where appropriate (archetypes, subconscious, patterns)
+- Be specific to their question, not generic
+- End every reading with genuine hope and empowerment
+- Avoid fear-based language even for "negative" cards like Death or The Tower — frame them as transformation`;
+
+  try {
+    const response = await fetch(DEEPSEEK_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: 'You are Lingxi, a warm, wise, and psychologically-grounded tarot reader.' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.85,
+        max_tokens: 2500
+      })
+    });
+
+    const data = await response.json();
+    if (data.choices && data.choices[0]) {
+      state.readingResult = data.choices[0].message.content;
+      showResult();
+    } else {
+      throw new Error('No response');
+    }
+  } catch (e) {
+    console.error('API Error:', e);
+    state.readingResult = generateFallbackReading();
+    showResult();
+  }
+}
+
+function generateFallbackReading() {
+  const cards = state.pickedCards.map(pc => pc.card);
+  const typeLabel = TYPES.find(t=>t.key===state.questionType)?.label||'life';
+  return `Dear ${state.userName},
+
+Thank you for opening your heart to the wisdom of the cards. Let's explore what the Universe wants you to know about your ${typeLabel.toLowerCase()} question: "${state.questionText}"
+
+---
+
+**${cards[0].name}${cards[0]._isReversed ? ' (Reversed)' : ''}**
+
+${cards[0]._isReversed ? cards[0].reversed : cards[0].meaning}
+
+This card speaks directly to the heart of your question. Its presence signals that ${cards[0]._isReversed ? 'there is inner work to be done before clarity emerges' : 'you are aligned with the energy needed to move forward'}.
+
+**${cards[1].name}${cards[1]._isReversed ? ' (Reversed)' : ''}**
+
+${cards[1]._isReversed ? cards[1].reversed : cards[1].meaning}
+
+As the central card, ${cards[1].name} represents your current energetic state. ${cards[1]._isReversed ? 'The reversal suggests an opportunity to shift your perspective' : 'You are standing in your power, and the path ahead is illuminated'}.
+
+**${cards[2].name}${cards[2]._isReversed ? ' (Reversed)' : ''}**
+
+${cards[2]._isReversed ? cards[2].reversed : cards[2].meaning}
+
+This is your outcome card — the direction the energy is flowing. ${cards[2]._isReversed ? 'The reversal is not a denial but a redirection toward something better' : 'The Universe is conspiring in your favor'}.
+
+---
+
+**What This Means For You**
+
+These three cards together tell a story of transformation and alignment. Your ${typeLabel.toLowerCase()} path may not be perfectly smooth, but every card whispers the same truth: you are moving in the right direction. The challenges are not roadblocks — they are initiations.
+
+**Your Next Steps**
+1. Trust your intuition, especially in the coming week — it's sharper than you realize
+2. Before making any big decisions, sit with the uncertainty for 48 hours — clarity will come
+3. Share your thoughts with someone you trust — their perspective may surprise you
+
+**A Personal Note from Lingxi**
+
+The Wheel is already turning. The answers you seek are not outside of you — they've been quietly waiting for you to listen. I'm just here to help you hear them.
+
+✨ May the Universe hold you gently.
+
+— Lingxi`;
+}
+
+// ============ RESULT DISPLAY ============
+function showResult() {
+  goTo('step-result');
+  const full = state.readingResult;
+  const summary = full.substring(0, Math.min(250, full.length)) + '…';
+
+  document.getElementById('resultSummary').innerHTML = summary.replace(/\n/g, '<br>');
+  document.getElementById('resultFull').innerHTML = full.replace(/\n/g, '<br>');
+  document.getElementById('blurSection').style.display = 'block';
+  document.getElementById('shareSection').style.display = 'none';
+
+  // Check if already unlocked (from previous payment or return URL)
+  if (state.unlocked || checkUnlockStatus()) {
+    unlockResult();
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function checkUnlockStatus() {
+  // Check URL params (return from Lemon Squeezy)
+  const params = new URLSearchParams(window.location.search);
+  const tier = params.get('tier');
+  if (tier) {
+    // Clean up the URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+    // Store unlock
+    const sessionKey = state.pickedCards.map(pc => pc.card.id).join('-');
+    localStorage.setItem('tarot_unlocked_' + sessionKey, tier);
+    return true;
+  }
+
+  // Check localStorage
+  const sessionKey = state.pickedCards.map(pc => pc.card.id).join('-');
+  return !!localStorage.getItem('tarot_unlocked_' + sessionKey);
+}
+
+function unlockResult() {
+  state.unlocked = true;
+  const blurContent = document.querySelector('#blurSection .blur-content');
+  if (blurContent) {
+    blurContent.style.filter = 'none';
+    blurContent.style.pointerEvents = 'auto';
+  }
+  const blurCover = document.querySelector('#blurSection .blur-cover');
+  if (blurCover) blurCover.style.display = 'none';
+  document.getElementById('resultSummary').style.display = 'none';
+  document.getElementById('shareSection').style.display = 'block';
+}
+
+// ============ PAYMENT ============
+function renderPriceCards() {
+  const plans = [
+    { tier:'basic',  amount:'$4.99',  desc:'Quick Reading — ~800 words, card-by-card interpretation', badge:'' },
+    { tier:'deep',   amount:'$9.99',  desc:'Deep Insight — ~2,000 words + action plan + 7-day forecast', badge:'🔥 Most Popular' },
+    { tier:'couple', amount:'$19.99', desc:'Soul Bond — Two-person relationship deep dive', badge:'💑' }
+  ];
+  document.getElementById('priceCards').innerHTML = plans.map(p => `
+    <div class="price-card${state.selectedTier===p.tier?' selected':''}" data-tier="${p.tier}">
+      <div style="flex:1;cursor:pointer;" onclick="selectTier('${p.tier}')">
+        <div class="price-amount">${p.amount} ${p.badge ? `<span class="badge">${p.badge}</span>`:''}</div>
+        <div class="price-desc">${p.desc}</div>
+      </div>
+      <button class="btn btn-gold btn-small" onclick="event.stopPropagation(); purchaseTier('${p.tier}')">Buy</button>
+    </div>
+  `).join('');
+}
+
+function selectTier(tier) {
+  state.selectedTier = tier;
+  renderPriceCards();
+}
+
+function purchaseTier(tier) {
+  const link = LEMON_SQUEEZY_LINKS[tier];
+  if (!link || link.indexOf('YOUR_STORE') !== -1) {
+    alert('Payment links are not configured yet. Please set up your Lemon Squeezy products first.\n\nSee the setup guide for instructions.');
+    return;
+  }
+  // Store selected tier so we can unlock when returning
+  localStorage.setItem('tarot_pending_tier', tier);
+  // Open Lemon Squeezy checkout
+  window.open(link, '_blank');
+  // Show instruction
+  setTimeout(() => {
+    const overlay = document.getElementById('payModal');
+    if (overlay.classList.contains('show')) {
+      overlay.classList.remove('show');
+    }
+    alert('📱 Complete your payment in the new tab, then return here and press the button again — your reading will unlock automatically.\n\n(Or refresh the page after payment)');
+  }, 500);
+}
+
+function showPayModal() {
+  renderPriceCards();
+  document.getElementById('payModal').classList.add('show');
+}
+
+function closePayModal() {
+  document.getElementById('payModal').classList.remove('show');
+}
+
+// Check if user returned from Lemon Squeezy payment
+function checkReturnFromPayment() {
+  const pendingTier = localStorage.getItem('tarot_pending_tier');
+  if (pendingTier && state.readingResult) {
+    // Assume payment was successful (Lemon Squeezy redirect can carry ?tier=xxx)
+    const urlTier = new URLSearchParams(window.location.search).get('tier');
+    if (urlTier) {
+      localStorage.removeItem('tarot_pending_tier');
+      const sessionKey = state.pickedCards.map(pc => pc.card.id).join('-');
+      localStorage.setItem('tarot_unlocked_' + sessionKey, urlTier);
+      unlockResult();
+    }
+  }
+}
+
+// ============ SHARE ============
+function shareResult() {
+  const text = `🔮 I just got my tarot reading from Lingxi Tarot — it was surprisingly accurate!\nTry yours →`;
+  const url = window.location.origin + window.location.pathname;
+  if (navigator.share) {
+    navigator.share({ title: 'Lingxi Tarot Reading', text, url });
+  } else {
+    navigator.clipboard.writeText(text + ' ' + url).then(() => {
+      alert('Link copied! Share it with your friends ✨');
+    });
+  }
+}
+
+// ============ RESET ============
+function resetAll() {
+  state.userName = '';
+  state.questionType = '';
+  state.questionText = '';
+  state.mood = '';
+  state.pickedCards = [];
+  state.readingResult = null;
+  state.selectedTier = 'deep';
+  state.flippedCount = 0;
+  state.unlocked = false;
+  document.getElementById('userName').value = '';
+  document.getElementById('userQuestion').value = '';
+  document.getElementById('resultSummary').innerHTML = '';
+  document.getElementById('resultFull').innerHTML = '';
+  const blurContent = document.querySelector('#blurSection .blur-content');
+  if (blurContent) { blurContent.style.filter = 'blur(8px)'; blurContent.style.pointerEvents = 'none'; }
+  const blurCover = document.getElementById('blurCover');
+  if (blurCover) blurCover.style.display = 'flex';
+  document.getElementById('shareSection').style.display = 'none';
+  document.getElementById('resultSummary').style.display = 'block';
+  document.getElementById('btnTypeNext').disabled = true;
+  document.getElementById('btnTypeNext').style.opacity = '0.5';
+  document.getElementById('btnMoodNext').disabled = true;
+  document.getElementById('btnMoodNext').style.opacity = '0.5';
+  document.getElementById('btnPick').disabled = true;
+  document.getElementById('btnPick').style.opacity = '0.5';
+  document.getElementById('btnRevealNext').style.display = 'none';
+  document.getElementById('btnRitual').style.display = 'none';
+  document.querySelectorAll('#typeGrid .choice-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('#moodTags .mood-tag').forEach(t => t.classList.remove('selected'));
+  goTo('step-home');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============ INIT ============
+init();
+</script>
+
+<!-- Shake animation -->
+<style>
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    50% { transform: translateX(8px); }
+    75% { transform: translateX(-4px); }
+  }
+</style>
+</body>
+</html>
