@@ -1,4 +1,7 @@
-const DEEPSEEK_API_KEY = "REDACTED_API_KEY";
+// ⚠️ NEVER put the real key here. Set DEEPSEEK_API_KEY in your hosting environment variables.
+const DEEPSEEK_API_KEY = typeof process !== "undefined" && process.env?.DEEPSEEK_API_KEY
+  ? process.env.DEEPSEEK_API_KEY
+  : "";
 
 const SYSTEM_PROMPT_ZH = "你叫灵犀，是一位经验丰富的塔罗占卜师。解读风格温暖有洞察力，有灵性不油腻，给人希望。";
 const SYSTEM_PROMPT_EN = "You are Lingxi, an experienced tarot reader. Your readings are warm, psychologically insightful, and spiritually grounded — never cheesy. You always end on a hopeful, empowering note.";
